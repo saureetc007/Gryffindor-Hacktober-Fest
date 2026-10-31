@@ -1,0 +1,63 @@
+{
+  "id": "issue-142",
+  "title": "Proposal: Rewrite parser/core.c in Rust for memory safety",
+  "url": "https://github.com/example-org/fastparser/issues/142",
+  "comments": [
+    {
+      "id": "c1",
+      "author": "alex_c",
+      "timestamp": "2026-03-01T09:15:00Z",
+      "url": "https://github.com/example-org/fastparser/issues/142#issuecomment-1001",
+      "text": "I propose that we rewrite parser/core.c in Rust. Our recent security audit flagged several memory safety concerns and buffer overflow risks in the C parser. Porting parser/core.c to Rust would eliminate these vulnerabilities at compile time."
+    },
+    {
+      "id": "c2",
+      "author": "sarah_k",
+      "timestamp": "2026-03-01T10:30:00Z",
+      "url": "https://github.com/example-org/fastparser/issues/142#issuecomment-1002",
+      "text": "While memory safety is important, introducing Rust adds cargo and rustc as mandatory build dependencies. Our project has always targeted strict C99 portability across embedded toolchains. This would significantly complicate downstream packaging."
+    },
+    {
+      "id": "c3",
+      "author": "dave_m",
+      "timestamp": "2026-03-01T11:45:00Z",
+      "url": "https://github.com/example-org/fastparser/issues/142#issuecomment-1003",
+      "text": "Another concern is the FFI boundary overhead. The routines in parser/core.c are called millions of times per second in hot loops by our C engine. Any foreign function interface crossing could degrade parsing throughput."
+    },
+    {
+      "id": "c4",
+      "author": "alex_c",
+      "timestamp": "2026-03-01T13:20:00Z",
+      "url": "https://github.com/example-org/fastparser/issues/142#issuecomment-1004",
+      "text": "I have opened PR #145 with an initial prototype rewriting parser/core.c using cxx bindings. We can run our standard performance test suite against it to see the actual impact."
+    },
+    {
+      "id": "c5",
+      "author": "elena_r",
+      "timestamp": "2026-03-01T15:10:00Z",
+      "url": "https://github.com/example-org/fastparser/issues/142#issuecomment-1005",
+      "text": "I ran our benchmark suite against PR #145 on Linux x86_64 and arm64. The Rust prototype in parser/core.c is 2x slower in benchmarks compared to the C implementation (145 MB/s vs 295 MB/s). The regression comes from mandatory slice bounds checks and UTF-8 verification."
+    },
+    {
+      "id": "c6",
+      "author": "alex_c",
+      "timestamp": "2026-03-01T16:40:00Z",
+      "url": "https://github.com/example-org/fastparser/issues/142#issuecomment-1006",
+      "text": "We could bypass some of those checks using unsafe pointer arithmetic in the innermost loops to narrow the performance gap."
+    },
+    {
+      "id": "c7",
+      "author": "dave_m",
+      "timestamp": "2026-03-01T18:00:00Z",
+      "url": "https://github.com/example-org/fastparser/issues/142#issuecomment-1007",
+      "text": "Sprinkling unsafe defeats the original motivation of adopting Rust for memory safety. A 2x slowdown in parser/core.c is a dealbreaker for production workloads. We should retain C and harden it with automated fuzzing instead."
+    },
+    {
+      "id": "c8",
+      "author": "sarah_k",
+      "timestamp": "2026-03-01T19:30:00Z",
+      "url": "https://github.com/example-org/fastparser/issues/142#issuecomment-1008",
+      "text": "We have reached consensus: PR #145 was reverted and parser/core.c will remain implemented in C. We will integrate AddressSanitizer and LibFuzzer into our CI pipeline to catch memory issues."
+    }
+  ]
+}
