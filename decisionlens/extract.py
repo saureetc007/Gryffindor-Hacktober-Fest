@@ -106,7 +106,7 @@ def call_gemma(prompt: str, schema: Any = EXTRACT_SCHEMA) -> str:
 
 def extract_chunk(
     chunk: list[Comment],
-    llm: Callable[..., str] = call_gemma,
+    llm: Optional[Callable[..., str]] = None,
 ) -> tuple[list[dict[str, Any]], list[str]]:
     """Extract proposals and claims from a chunk of comments.
 
@@ -121,6 +121,9 @@ def extract_chunk(
     Returns:
         Tuple of (proposals, uncertainties).
     """
+    if llm is None:
+        llm = call_gemma
+
     if not chunk:
         return ([], [])
 
@@ -246,7 +249,7 @@ def verify_quotes(
 def extract_thread(
     thread: Thread,
     chunks: list[list[Comment]],
-    llm: Callable[..., str] = call_gemma,
+    llm: Optional[Callable[..., str]] = None,
 ) -> tuple[list[dict[str, Any]], list[str]]:
     """Extract proposals across all chunks of a thread and verify all quotes.
 
@@ -258,6 +261,8 @@ def extract_thread(
     Returns:
         Tuple of (verified_proposals, uncertainties).
     """
+    if llm is None:
+        llm = call_gemma
     combined_proposals: list[dict[str, Any]] = []
     uncertainties: list[str] = []
 

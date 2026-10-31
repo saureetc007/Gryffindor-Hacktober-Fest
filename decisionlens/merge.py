@@ -6,6 +6,7 @@ import json
 import re
 from typing import Any, Callable, Optional
 
+from decisionlens.link import extract_paths
 from decisionlens.models import Claim, DecisionRecord, DecisionStatus, Thread
 
 MERGE_SCHEMA: dict[str, Any] = {
@@ -132,9 +133,9 @@ def _fallback_decision_records(
                     verified=True,
                 )
             )
-            for match in re.findall(r"\b[\w\./-]+\.[a-zA-Z0-9]+\b", quote):
-                if "/" in match and match not in linked_code:
-                    linked_code.append(match)
+            for path in extract_paths(quote):
+                if path not in linked_code:
+                    linked_code.append(path)
 
         note = f"Fallback to UNRESOLVED for proposal {idx}: {error_note}"
         uncertainties.append(note)
@@ -403,9 +404,9 @@ def merge_proposals(
         # Extract linked code from sources
         linked_code: list[str] = []
         for src in sources:
-            for match in re.findall(r"\b[\w\./-]+\.[a-zA-Z0-9]+\b", src.quote):
-                if "/" in match and match not in linked_code:
-                    linked_code.append(match)
+            for path in extract_paths(src.quote):
+                if path not in linked_code:
+                    linked_code.append(path)
 
         rec = DecisionRecord(
             id=f"DEC-{d_idx:03d}",
