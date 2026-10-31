@@ -19,8 +19,32 @@ DecisionTrace recovers historical engineering decisions, rejected alternatives, 
 
 ## Models we use and why
 
-- **Qwen2.5 7B:** Extracts technical decisions, rejected alternatives, and their reasoning from discussion threads. It generates structured outputs using a locally running open-weight model.
+**Gemma 4 12B**
 
-  Small enough to run locally on suitable hardware while providing useful reasoning and information extraction capabilities.
+Gemma 4 12B is used as the main AI model in our project.
+
+It reads GitHub discussions, issues, pull requests, and technical conversations. It finds important decisions, rejected ideas, and the reasons behind them.
+
+For every result, it gives:
+
+Decision status: accepted, rejected, or uncertain
+
+Reason for the decision
+
+Rejected alternatives
+
+Exact supporting quote
+
+Original GitHub source link
+
+**Qwen 3.5 4B**
+
+Qwen 3.5 4B is used as our coding assistant during development.
+
+It helps us build the frontend, backend, login system, database, GitHub integration, APIs, and tests.
+
+
+Both models run locally on our laptops using Ollama.
+ Project data is processed locally, and only public GitHub data is collected for analysis.
 
 
