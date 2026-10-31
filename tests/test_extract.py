@@ -8,6 +8,7 @@ from decisionlens.chunk import chunk_thread
 from decisionlens.extract import (
     EXTRACT_PROMPT,
     EXTRACT_SCHEMA,
+    call_gemma,
     extract_chunk,
     extract_thread,
     verify_quotes,
@@ -219,3 +220,23 @@ def test_extract_thread_end_to_end(sample_thread):
     assert len(proposals) >= 1
     assert proposals[0]["name"] == "Rewrite parser in Rust"
     assert proposals[0]["claims"][0]["comment_id"] == "c8"
+
+
+def test_call_gemma_fallback_on_501(monkeypatch):
+    """Verify call_gemma falls back to calling chat without format on 501 structured output error."""
+    import sys
+    import types
+
+    fake_ollama = types.ModuleType("ollama")
+
+    def fake_chat(**kwargs):
+        if "format" in kwargs:
+            raise RuntimeError("structured output is unavailable (status code: 501)")
+        return {"message": {"content": '{"proposals": []}'}}
+
+    fake_ollama.chat = fake_chat
+    monkeypatch.setitem(sys.modules, "ollama", fake_ollama)
+
+    result = call_gemma("Test discussion prompt")
+    assert result == '{"proposals": []}'
+

@@ -100,7 +100,16 @@ def call_gemma(prompt: str, schema: Any = EXTRACT_SCHEMA) -> str:
     if schema is not None:
         kwargs["format"] = schema
 
-    response = ollama.chat(**kwargs)
+    try:
+        response = ollama.chat(**kwargs)
+    except Exception as exc:
+        err_text = str(exc)
+        if "structured output" in err_text.lower() or "501" in err_text:
+            kwargs.pop("format", None)
+            response = ollama.chat(**kwargs)
+        else:
+            raise
+
     return response["message"]["content"]
 
 

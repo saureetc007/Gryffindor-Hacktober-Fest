@@ -149,6 +149,9 @@ def _fallback_decision_records(
             linked_code=linked_code,
             status=DecisionStatus.UNRESOLVED.value,
             uncertainties=[note],
+            thread_id=thread.id,
+            thread_title=thread.title,
+            thread_url=thread.url,
         )
         records.append(record)
 
@@ -417,6 +420,9 @@ def merge_proposals(
             linked_code=linked_code,
             status=status,
             uncertainties=list(uncertainties),
+            thread_id=thread.id,
+            thread_title=thread.title,
+            thread_url=thread.url,
         )
         records.append(rec)
 

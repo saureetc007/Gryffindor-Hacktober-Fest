@@ -107,6 +107,9 @@ class DecisionRecord:
     uncertainties: list[str] = field(default_factory=list)
     id: str = ""
     title: str = ""
+    thread_id: str = ""
+    thread_title: str = ""
+    thread_url: str = ""
 
 
 @dataclass

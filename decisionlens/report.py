@@ -48,6 +48,10 @@ def write_report(records: list[DecisionRecord], path: str | Path) -> None:
         lines.append(f"- **ID:** `{rec_id}`")
         lines.append(f"- **Status:** `{rec.status}`")
         lines.append(f"- **Decided:** {rec.decided or 'N/A'}")
+        if rec.thread_id or rec.thread_url or rec.thread_title:
+            t_id = f"#{rec.thread_id}" if rec.thread_id else ""
+            t_link = f"[{t_id} {rec.thread_title}]({rec.thread_url})" if rec.thread_url else f"{t_id} {rec.thread_title}"
+            lines.append(f"- **Discussion:** {t_link.strip()}")
         lines.append("")
 
         # Rejected alternatives

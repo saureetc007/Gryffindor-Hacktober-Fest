@@ -17,14 +17,17 @@ from decisionlens.models import Claim, DecisionRecord
 def learn(
     thread_path: str | Path,
     llm: Optional[Callable[..., str]] = None,
+    existing_records: Optional[list[DecisionRecord]] = None,
 ) -> list[DecisionRecord]:
     """Run full recovery pipeline on a discussion thread.
 
     Runs load, chunk, extract_thread, merge_proposals, link_code and returns records.
+    If existing_records is provided, assigns non-colliding IDs.
 
     Args:
         thread_path: Path to thread JSON or text file.
         llm: Callable accepting (prompt, schema).
+        existing_records: Optional existing records to avoid ID collisions.
 
     Returns:
         List of finalized DecisionRecord objects.
@@ -39,6 +42,18 @@ def learn(
     proposals, _ = extract_thread(thread, chunks, llm=llm)
     records, _ = merge_proposals(proposals, thread, llm=llm)
     linked_records = [link_code(rec, thread) for rec in records]
+
+    if existing_records:
+        import re
+
+        max_num = 0
+        for r in existing_records:
+            m = re.search(r"(\d+)", r.id)
+            if m:
+                max_num = max(max_num, int(m.group(1)))
+        for i, rec in enumerate(linked_records, start=max_num + 1):
+            rec.id = f"DEC-{i:03d}"
+
     return linked_records
 
 
@@ -87,6 +102,9 @@ def save_records(records: list[DecisionRecord], path: str | Path) -> None:
                 "linked_code": rec.linked_code,
                 "status": rec.status,
                 "uncertainties": rec.uncertainties,
+                "thread_id": rec.thread_id,
+                "thread_title": rec.thread_title,
+                "thread_url": rec.thread_url,
             }
         )
 
@@ -145,6 +163,9 @@ def load_records(path: str | Path) -> list[DecisionRecord]:
                 linked_code=item.get("linked_code") or [],
                 status=str(item.get("status") or "UNRESOLVED"),
                 uncertainties=item.get("uncertainties") or [],
+                thread_id=str(item.get("thread_id") or ""),
+                thread_title=str(item.get("thread_title") or ""),
+                thread_url=str(item.get("thread_url") or ""),
             )
         )
 
