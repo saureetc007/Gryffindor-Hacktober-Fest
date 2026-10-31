@@ -2,7 +2,7 @@
 
 ## Team name
 
-DecisionTrace
+Gryffindor
 
 ## Team members
 
