@@ -13,38 +13,22 @@ Gryffindor
 
 ## Problem statement
 
-**Problem 06: Open Source Decision Intelligence and Knowledge Recovery**
+**Problem 06: Open Source Decision Intelligence and Knowledge Recovery — DecisionLens**
 
-DecisionTrace recovers historical engineering decisions, rejected alternatives, and technical reasoning from open-source discussions. It connects recovered decisions to relevant code changes and surfaces historical context during pull requests, with verifiable evidence from original discussions.
+DecisionLens recovers historical engineering decisions, rejected alternatives, and technical reasoning from open-source discussions (GitHub issues, pull requests, and saved PEP discussions in plain text or JSON). It connects recovered decisions to relevant code changes and warns developers when a new pull request touches code tied to a past decision, backing every insight with verifiable verbatim evidence from the original discussions.
 
 ## Models we use and why
 
-**Gemma 4 12B**
+### `gemma4:12b`
 
-Gemma 4 12B is used as the main AI model in our project.
+The project's runtime AI is **ONLY** `gemma4:12b` (Gemma, open-weight, run locally through Ollama). We never add or use OpenAI, Anthropic, Gemini, or any other proprietary API, SDK, or key.
 
-It reads GitHub discussions, issues, pull requests, and technical conversations. It finds important decisions, rejected ideas, and the reasons behind them.
+- **Role:** `gemma4:12b` is the only runtime model used for all reading, comparison, and decision judgment across DecisionLens.
+- **Why we use it:**
+  - **Open-Weight & Local Execution:** Runs locally via Ollama, ensuring complete privacy, zero external data leakage of repository discussions, and full offline execution capability.
+  - **Deep Reasoning & Interpretation:** Provides strong language comprehension necessary to parse complex technical arguments, recognize consensus, and extract structured decisions and rejected alternatives.
+  - **Deterministic Code Boundary:** The model only interprets text. Deterministic code (not the model) produces and manages all IDs, URLs, and file paths, and verifies that quotes appear verbatim in the source comments before any claim is accepted.
 
-For every result, it gives:
+## Development Tools
 
-Decision status: accepted, rejected, or uncertain
-
-Reason for the decision
-
-Rejected alternatives
-
-Exact supporting quote
-
-Original GitHub source link
-
-**Qwen 3.5 4B**
-
-Qwen 3.5 4B is used as our coding assistant during development.
-
-It helps us build the frontend, backend, login system, database, GitHub integration, APIs, and tests.
-
-
-Both models run locally on our laptops using Ollama.
- Project data is processed locally, and only public GitHub data is collected for analysis.
-
-
+- **Antigravity:** Used solely as the coding assistant tool during development, not as a runtime project model.
