@@ -1,0 +1,10 @@
+{
+  "pr_number": 146,
+  "title": "Rewrite parser/core.c routines in Rust for safety",
+  "files": [
+    "parser/core.c"
+  ],
+  "commits": [
+    "f3a2b1c4d5e6a7b8c9d0"
+  ]
+}

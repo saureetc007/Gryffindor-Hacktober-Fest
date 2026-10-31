@@ -5,6 +5,7 @@ import json
 import sys
 
 from decisionlens.pipeline import learn, load_records, save_records
+from decisionlens.report import write_report
 from decisionlens.surface import build_pr_context, surface
 
 
@@ -19,6 +20,10 @@ def main(argv=None):
     check_p = subparsers.add_parser("check", help="Check PR against past decisions")
     check_p.add_argument("pr_file", help="Path to PR JSON")
     check_p.add_argument("--decisions", required=True, help="Path to decisions JSON")
+
+    report_p = subparsers.add_parser("report", help="Generate Markdown report from decisions")
+    report_p.add_argument("decisions", help="Path to decisions JSON")
+    report_p.add_argument("--out", required=True, help="Output path for report Markdown")
 
     if argv is None:
         argv = sys.argv[1:]
@@ -41,6 +46,11 @@ def main(argv=None):
         else:
             for w in warnings:
                 print(str(w))
+
+    elif parsed.command == "report":
+        records = load_records(parsed.decisions)
+        write_report(records, parsed.out)
+        print(f"Report written to {parsed.out}")
 
 
 if __name__ == "__main__":
