@@ -44,6 +44,9 @@ def test_report_contains_quote_url_and_status(tmp_path):
 
     # Verify status
     assert "REJECTED" in content
+    assert "🟥" in content
+    assert "**REJECTED**" in content
+    assert "**STATUS:**" in content
 
     # Verify quote
     assert quote_text in content
@@ -56,9 +59,10 @@ def test_report_contains_quote_url_and_status(tmp_path):
     assert "Rewrite parser/core.c in Rust" in content
     assert "2x slower in benchmarks" in content
     assert "parser/core.c" in content
+    assert "**REASON:**" in content
 
     # Verify Unverified section
-    assert "Unverified Notes" in content
+    assert "UNVERIFIED" in content
 
 
 def test_report_empty_records_gives_valid_report(tmp_path):

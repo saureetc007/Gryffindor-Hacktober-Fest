@@ -8,6 +8,14 @@ from typing import Any
 from decisionlens.models import Claim, DecisionRecord
 
 
+STATUS_EMOJI: dict[str, str] = {
+    "REJECTED": "🟥",
+    "ACCEPTED": "🟩",
+    "UNRESOLVED": "🟨",
+    "LOW_CONFIDENCE": "🟪",
+}
+
+
 def write_report(records: list[DecisionRecord], path: str | Path) -> None:
     """Generate and write a Markdown report from recovered DecisionRecords.
 
@@ -46,8 +54,10 @@ def write_report(records: list[DecisionRecord], path: str | Path) -> None:
         lines.append(f"## {idx}. {rec.title or 'Untitled Decision'}")
         lines.append("")
         lines.append(f"- **ID:** `{rec_id}`")
-        lines.append(f"- **Status:** `{rec.status}`")
-        lines.append(f"- **Decided:** {rec.decided or 'N/A'}")
+        status_upper = (rec.status or "UNRESOLVED").strip().upper()
+        emoji = STATUS_EMOJI.get(status_upper, "⬜")
+        lines.append(f"- **STATUS:** {emoji} **{status_upper}**")
+        lines.append(f"- **DECIDED:** {rec.decided or 'N/A'}")
         if rec.thread_id or rec.thread_url or rec.thread_title:
             t_id = f"#{rec.thread_id}" if rec.thread_id else ""
             t_link = f"[{t_id} {rec.thread_title}]({rec.thread_url})" if rec.thread_url else f"{t_id} {rec.thread_title}"
@@ -55,7 +65,7 @@ def write_report(records: list[DecisionRecord], path: str | Path) -> None:
         lines.append("")
 
         # Rejected alternatives
-        lines.append("### Rejected Alternatives")
+        lines.append("### **REJECTED IDEAS**")
         if rec.rejected:
             for rej in rec.rejected:
                 if isinstance(rej, dict):
@@ -64,13 +74,13 @@ def write_report(records: list[DecisionRecord], path: str | Path) -> None:
                 else:
                     idea = getattr(rej, "idea", "Unknown")
                     why = getattr(rej, "why", "No reason provided")
-                lines.append(f"- **{idea}:** {why}")
+                lines.append(f"- **{idea}:** **REASON:** {why}")
         else:
             lines.append("- *None recorded.*")
         lines.append("")
 
         # Linked code
-        lines.append("### Linked Code")
+        lines.append("### **LINKED CODE**")
         if rec.linked_code:
             for code_path in rec.linked_code:
                 lines.append(f"- `{code_path}`")
@@ -79,7 +89,7 @@ def write_report(records: list[DecisionRecord], path: str | Path) -> None:
         lines.append("")
 
         # Sources & verbatim quotes
-        lines.append("### Sources & Verbatim Quotes")
+        lines.append("### **SOURCES**")
         if rec.sources:
             for s in rec.sources:
                 if isinstance(s, Claim):
@@ -106,7 +116,7 @@ def write_report(records: list[DecisionRecord], path: str | Path) -> None:
             lines.append("")
 
         # Unverified section
-        lines.append("### Unverified Notes")
+        lines.append("### **UNVERIFIED**")
         if rec.uncertainties:
             for note in rec.uncertainties:
                 lines.append(f"- {note}")

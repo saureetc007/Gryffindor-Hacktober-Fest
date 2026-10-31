@@ -1,1 +1,88 @@
-[]
+[
+  {
+    "id": "DEC-001",
+    "title": "Retain C implementation for parser",
+    "decided": "The team decided to keep the existing C implementation for parser/core.c. To address memory safety concerns and buffer overflow risks, the team will instead integrate AddressSanitizer and LibFuzzer into the CI pipeline.",
+    "rejected": [
+      {
+        "idea": "Rewrite parser/core.c in Rust",
+        "why": "The Rust prototype resulted in a 2x performance regression (145 MB/s vs 295 MB/s) due to mandatory slice bounds checks and UTF-8 verification. Additionally, there were concerns regarding the introduction of cargo/rustc as mandatory build dependencies and the potential loss of C99 portability for embedded toolchains."
+      }
+    ],
+    "sources": [
+      {
+        "comment_id": "c1",
+        "quote": "I propose that we rewrite parser/core.c in Rust. Our recent security audit flagged several memory safety concerns and buffer overflow risks in the C parser.",
+        "exact_quote": "I propose that we rewrite parser/core.c in Rust. Our recent security audit flagged several memory safety concerns and buffer overflow risks in the C parser.",
+        "url": "https://github.com/example-org/fastparser/issues/142#issuecomment-1001",
+        "claim": "",
+        "verified": true
+      },
+      {
+        "comment_id": "c2",
+        "quote": "introducing Rust adds cargo and rustc as mandatory build dependencies. Our project has always targeted strict C99 portability across embedded toolchains.",
+        "exact_quote": "introducing Rust adds cargo and rustc as mandatory build dependencies. Our project has always targeted strict C99 portability across embedded toolchains.",
+        "url": "https://github.com/example-org/fastparser/issues/142#issuecomment-1002",
+        "claim": "",
+        "verified": true
+      },
+      {
+        "comment_id": "c3",
+        "quote": "The routines in parser/core.c are called millions of times per second in hot loops by our C engine. Any foreign function interface crossing could degrade parsing throughput.",
+        "exact_quote": "The routines in parser/core.c are called millions of times per second in hot loops by our C engine. Any foreign function interface crossing could degrade parsing throughput.",
+        "url": "https://github.com/example-org/fastparser/issues/142#issuecomment-1003",
+        "claim": "",
+        "verified": true
+      },
+      {
+        "comment_id": "c5",
+        "quote": "The Rust prototype in parser/core.c is 2x slower in benchmarks compared to the C implementation (145 MB/s vs 295 MB/s). The regression comes from mandatory slice bounds checks and UTF-8 verification.",
+        "exact_quote": "The Rust prototype in parser/core.c is 2x slower in benchmarks compared to the C implementation (145 MB/s vs 295 MB/s). The regression comes from mandatory slice bounds checks and UTF-8 verification.",
+        "url": "https://github.com/example-org/fastparser/issues/142#issuecomment-1005",
+        "claim": "",
+        "verified": true
+      },
+      {
+        "comment_id": "c7",
+        "quote": "Sprinkling unsafe defeats the original motivation of adopting Rust for memory safety.",
+        "exact_quote": "Sprinkling unsafe defeats the original motivation of adopting Rust for memory safety.",
+        "url": "https://github.com/example-org/fastparser/issues/142#issuecomment-1007",
+        "claim": "",
+        "verified": true
+      },
+      {
+        "comment_id": "c7",
+        "quote": "A 2x slowdown in parser/core.c is a dealbreaker for production workloads.",
+        "exact_quote": "A 2x slowdown in parser/core.c is a dealbreaker for production workloads.",
+        "url": "https://github.com/example-org/fastparser/issues/142#issuecomment-1007",
+        "claim": "",
+        "verified": true
+      },
+      {
+        "comment_id": "c8",
+        "quote": "PR #145 was reverted and parser/core.c will remain implemented in C.",
+        "exact_quote": "PR #145 was reverted and parser/core.c will remain implemented in C.",
+        "url": "https://github.com/example-org/fastparser/issues/142#issuecomment-1008",
+        "claim": "",
+        "verified": true
+      },
+      {
+        "comment_id": "c8",
+        "quote": "We will integrate AddressSanitizer and LibFuzzer into our CI pipeline to catch memory issues.",
+        "exact_quote": "We will integrate AddressSanitizer and LibFuzzer into our CI pipeline to catch memory issues.",
+        "url": "https://github.com/example-org/fastparser/issues/142#issuecomment-1008",
+        "claim": "",
+        "verified": true
+      }
+    ],
+    "linked_code": [
+      "parser/core.c",
+      "MB/s"
+    ],
+    "status": "REJECTED",
+    "uncertainties": [],
+    "thread_id": "issue-142",
+    "thread_title": "Proposal: Rewrite parser/core.c in Rust for memory safety",
+    "thread_url": "https://github.com/example-org/fastparser/issues/142"
+  }
+]

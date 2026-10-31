@@ -293,19 +293,42 @@ def surface(
         # Code-generated template warning
         if match_type == "strong":
             files_str = ", ".join(matched_files)
-            template_warning = (
-                f"PR touches {files_str} which is tied to past decision '{record.title}' "
-                f"(status: {record.status}). Previously decided: {record.decided}."
-            )
+            template_parts = [
+                f"PR touches {files_str} which is tied to past decision '{record.title}'."
+            ]
         else:
             topics_str = ", ".join(list(shared_topics)[:3])
-            template_warning = (
-                f"Possible conflict with past decision '{record.title}' "
-                f"(status: {record.status}) on topic '{topics_str}'. "
-                f"Previously decided: {record.decided}."
-            )
+            template_parts = [
+                f"Possible conflict with past decision '{record.title}' on topic '{topics_str}'."
+            ]
 
+        if record.rejected:
+            for r in record.rejected:
+                idea = getattr(r, "idea", "") or (
+                    r.get("idea", "") if isinstance(r, dict) else ""
+                )
+                why = getattr(r, "why", "") or (
+                    r.get("why", "") if isinstance(r, dict) else ""
+                )
+                idea_str = str(idea).strip().rstrip(".")
+                why_str = str(why).strip().rstrip(".")
+                if idea_str and why_str:
+                    template_parts.append(
+                        f"Rejected idea: {idea_str}. Reason: {why_str}."
+                    )
+                elif idea_str:
+                    template_parts.append(f"Rejected idea: {idea_str}.")
+
+        if record.status:
+            template_parts.append(f"Status: {record.status}.")
+
+        decided_str = str(record.decided or "").strip().rstrip(".")
+        if decided_str:
+            template_parts.append(f"Previously decided: {decided_str}.")
+
+        template_warning = " ".join(template_parts)
         final_warning = template_warning
+        path_source = "template"
 
         if llm is not None or "call_gemma" in globals():
             if llm is None:
@@ -357,15 +380,26 @@ def surface(
 
                     if not invalid:
                         final_warning = candidate_text
+                        path_source = "model"
             except Exception:
                 final_warning = template_warning
+                path_source = "template"
 
-        # Source URLs come strictly from code
+        # Never end the text with a double period
+        clean_text = final_warning.strip()
+        while clean_text.endswith(".."):
+            clean_text = clean_text[:-1]
+
+        final_warning = f"{clean_text} (warning text written by: {path_source})"
+        while final_warning.endswith(".."):
+            final_warning = final_warning[:-1]
+
+        # Source URLs come strictly from code, deduplicated by URL preserving order
         source_urls = [
             getattr(s, "url", "") or (s.get("url") if isinstance(s, dict) else "")
             for s in record.sources
         ]
-        source_urls = [u for u in source_urls if u]
+        source_urls = list(dict.fromkeys(u for u in source_urls if u))
 
         warnings.append(
             WarningItem(

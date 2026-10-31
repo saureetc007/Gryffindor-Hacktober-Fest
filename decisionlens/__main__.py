@@ -6,6 +6,7 @@ import sys
 
 from decisionlens.pipeline import learn, load_records, save_records
 from decisionlens.report import write_report
+from decisionlens.style import format_warning_cli, paint
 from decisionlens.surface import build_pr_context, surface
 
 
@@ -33,7 +34,9 @@ def main(argv=None):
     if parsed.command == "learn":
         records = learn(parsed.thread)
         save_records(records, parsed.out)
-        print(f"Learned {len(records)} decision(s) saved to {parsed.out}")
+        count_str = paint(str(len(records)), "green", bold=True)
+        out_str = paint(str(parsed.out), "green", bold=True)
+        print(f"Learned {count_str} decision(s) saved to {out_str}")
 
     elif parsed.command == "check":
         with open(parsed.pr_file, "r", encoding="utf-8") as f:
@@ -45,12 +48,13 @@ def main(argv=None):
             print("No decision conflicts detected.")
         else:
             for w in warnings:
-                print(str(w))
+                print(format_warning_cli(w))
 
     elif parsed.command == "report":
         records = load_records(parsed.decisions)
         write_report(records, parsed.out)
-        print(f"Report written to {parsed.out}")
+        out_str = paint(str(parsed.out), "green", bold=True)
+        print(f"Report written to {out_str}")
 
 
 if __name__ == "__main__":
