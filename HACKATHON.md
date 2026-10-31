@@ -15,7 +15,7 @@ Gryffindor
 
 **Problem 06: Open Source Decision Intelligence and Knowledge Recovery**
 
-DecisionTrace recovers historical engineering decisions, rejected alternatives, and technical reasoning from open-source discussions. It connects recovered decisions to relevant code changes and surfaces historical context during pull requests, with verifiable evidence from original discussions.
+Gryffindor recovers historical engineering decisions, rejected alternatives, and technical reasoning from open-source discussions. It connects recovered decisions to relevant code changes and surfaces historical context during pull requests, with verifiable evidence from original discussions.
 
 ## Models we use and why
 
